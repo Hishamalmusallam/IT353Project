@@ -1,0 +1,168 @@
+@startuml
+!theme plain
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam classFontName Arial
+skinparam classFontSize 15
+skinparam classAttributeFontSize 11
+skinparam classBorderColor #3F3F3F
+skinparam ArrowColor #444444
+left to right direction
+
+title Event Registration System\nUpdated Class Diagram
+
+class Student #D9E8F7 {
+  - Student_ID : int <<PK>>
+  - First_Name : varchar(15)
+  - Last_Name : varchar(15)
+  - Phone : varchar(10)
+  - Email : varchar(50)
+  --
+  + registerForActivity(activityId:int) : Registration
+  + viewActivities() : List<Activity>
+  + viewMyRegistrations() : List<Registration>
+  + viewMyAttendance() : List<Attendance>
+  + viewMyCertificates() : List<Certificate>
+  + viewNotifications() : List<Notification>
+}
+
+class Registration #DDEED8 {
+  - Registration_ID : int <<PK>>
+  - Registration_Date : date
+  - Registration_Status : varchar(15)
+  - {Registered, Approved, Cancelled, Waiting}
+  --
+  + cancelRegistration() : void
+  + updateStatus(status:varchar) : void
+  + getRegistrationDetails() : Registration
+}
+
+class Activity #F7E9B4 {
+  - Activity_ID : int <<PK>>
+  - Activity_Name : varchar(25)
+  - Activity_Date : date
+  - Start_Time : time
+  - End_Time : time
+  - Max_Participants : int
+  - Registration_Due_Date : date
+  - Activity_Status : varchar(20)
+  - {Draft, Pending_Approval, Approved, Rejected, Published, Completed, Cancelled}
+  --
+  + submitForApproval() : void
+  + publish() : void
+  + updateActivity() : void
+  + cancelActivity() : void
+  + getAvailableSeats() : int
+}
+
+class Organizer #D9E8F7 {
+  - Organizer_ID : int <<PK>>
+  - First_Name : varchar(15)
+  - Last_Name : varchar(15)
+  - Phone : varchar(10)
+  - Email : varchar(50)
+  --
+  + createActivity() : Activity
+  + updateActivity(activityId:int) : void
+  + deleteActivity(activityId:int) : void
+  + viewMyActivities() : List<Activity>
+  + manageParticipants(activityId:int) : void
+  + recordAttendance(activityId:int, studentId:int, status:varchar) : Attendance
+  + generateCertificates(activityId:int) : List<Certificate>
+  + generateReports(activityId:int) : Report
+}
+
+class Campus #E7DDF0 {
+  - Campus_ID : int <<PK>>
+  - Name : varchar(15)
+  --
+  + addCampus() : void
+  + updateCampus() : void
+  + deleteCampus() : void
+}
+
+class Location #D7EEF0 {
+  - Location_ID : int <<PK>>
+  - Location_Name : varchar(25)
+  --
+  + addLocation() : void
+  + updateLocation() : void
+  + deleteLocation() : void
+}
+
+class Activity_Category #F1DDE4 {
+  - Category_ID : int <<PK>>
+  - Name : varchar(15)
+  --
+  + addCategory() : void
+  + updateCategory() : void
+  + deleteCategory() : void
+}
+
+class Attendance #F5E0C2 {
+  - Attendance_ID : int <<PK>>
+  - Attendance_Date : date
+  - Attendance_Status : varchar(10)
+  - {Present, Absent, Excused}
+  - Check_In_Time : time
+  - Notes : varchar(100)
+  --
+  + recordAttendance() : void
+  + updateStatus(status:varchar) : void
+  + getAttendanceDetails() : Attendance
+}
+
+class Certificate #D9EEE2 {
+  - Certificate_ID : int <<PK>>
+  - Issue_Date : date
+  - Certificate_Code : varchar(30)
+  - Verification_Status : varchar(15)
+  - {Valid, Revoked}
+  --
+  + generate() : void
+  + verify() : boolean
+  + revoke() : void
+  + download() : File
+}
+
+class Notification #E2E2F3 {
+  - Notification_ID : int <<PK>>
+  - Message : varchar(255)
+  - Sent_At : datetime
+  - Notification_Type : varchar(20)
+  - Read_Status : boolean
+  --
+  + send() : void
+  + markAsRead() : void
+  + getNotificationDetails() : Notification
+}
+
+class "Student Affairs Department" as Student_Affairs_Department #F3DFC9 {
+  - Department_ID : int <<PK>>
+  - Department_Name : varchar(50)
+  --
+  + manageActivityCategories() : void
+  + approveActivity(activityId:int) : void
+  + rejectActivity(activityId:int, reason:varchar) : void
+  + monitorParticipationStatistics() : Report
+  + verifyStudentActivityTranscript(studentId:int) : boolean
+  + generateReports() : Report
+}
+
+Student "1" -- "0..*" Registration : makes
+Registration "0..*" -- "1" Activity : for
+Registration "1" -- "0..1" Attendance : has
+Registration "1" -- "0..1" Certificate : earns
+Organizer "1" -- "0..*" Activity : organizes
+Organizer "1" -- "1" Campus : manages
+Campus "1" -- "*" Location : has
+Location "1" -- "*" Activity : hosts
+Activity_Category "1" -- "*" Activity : classifies
+Student "1" -- "0..*" Notification : receives
+Student_Affairs_Department "1" -- "0..*" Activity_Category : manages
+Student_Affairs_Department "1" -- "0..*" Activity : approves / rejects
+
+
+@enduml
